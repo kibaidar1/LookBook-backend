@@ -1,0 +1,33 @@
+{% load static %}
+<section class="home_banner_area">
+        	<div class="container">
+				<div class="blog_text_slider owl-carousel">
+					{% for hot in hot_posts %}
+						<div class="row">
+							<div class="col-lg-6">
+								<a href="{% url 'post_detail' hot.post.url %}"> <img class="img-fluid" src="{{ hot.post.image.url }}" ></a>
+							</div>
+							<div class="col-lg-6">
+								<div class="item">
+									<div class="blog_text">
+										<div class="cat">
+											<a><i class="fa fa-calendar" aria-hidden="true"></i> {{hot.post.created_at}}</a>
+											<a href="{% url 'post_detail' hot.post.url %}#comment-area"><i class="fa fa-comments-o" aria-hidden="true"></i> 1</a>
+											<div>
+												{% for tag in hot.post.tag.all %}
+													<a href="{% url 'tag' tag.slug %}" class="mr-1 badge ">#{{ tag }}</a>
+												{% endfor %}
+											</div>
+										</div>
+										<a href="{% url 'post_detail' hot.post.url %}"><h4>{{ hot.post.title }}</h4></a>
+										<p>{{ hot.post.description|safe }}</p>
+										<a class="blog_btn" href="{% url 'post_detail' hot.post.url %}">Подробнее</a>
+									</div>
+								</div>
+
+							</div>
+						</div>
+					{% endfor %}
+				</div>
+        	</div>
+ </section>

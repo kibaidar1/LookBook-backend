@@ -1,0 +1,31 @@
+<div class="comment-form" >
+    <h4>Оставьте комментарий:</h4>
+    {% if user.is_authenticated %}
+        <form method="post">
+            {% csrf_token %}
+            <div class="form-group">
+                {{ comment_form.text }}
+            </div>
+            <button type="submit" class="primary-btn submit_btn"> Отправить </button>
+        </form>
+    {% else %}
+        <h6 class="card-header"><a href="{% url 'signin' %}#signin-form"> Авторизуйтесь </a> или <a href="{% url 'signup' %}#signup-form">Зарегистрируйтесь </a> чтобы оставить комментарий</h6>
+    {% endif %}
+</div>
+<div class="comments-area" id="comment-area">
+    {% for comment in post.comments.all %}
+        <div class="comment-list">
+            <div class="single-comment justify-content-between d-flex">
+                <div class="user justify-content-between d-flex">
+                    <div class="desc">
+                        <h5><a href="#"> {{ comment.author }} </a></h5>
+                        <p class="date"> {{ comment.created_at }} </p>
+                        <p class="comment">
+                            {{ comment.text }}
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+</div>

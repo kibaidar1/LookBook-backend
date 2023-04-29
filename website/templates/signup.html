@@ -1,0 +1,82 @@
+{% extends './base.html' %}
+{% load static %}
+{% block title %}Регистрация{% endblock %}
+
+{% block content %}
+
+<!-- Section: Design Block -->
+<section class="text-center">
+  <!-- Background image -->
+  <div class="p-5 bg-image" style="
+        background-image: url('https://mdbootstrap.com/img/new/textures/full/171.jpg');
+        height: 300px;
+        "></div>
+  <!-- Background image -->
+
+  <div class="card mx-4 mx-md-5 shadow-5-strong" style="
+        margin-top: -100px;
+        background: hsla(0, 0%, 100%, 0.8);
+        backdrop-filter: blur(30px);
+        " id="signup-form">
+    <div class="card-body py-5 px-md-5">
+      <div class="row d-flex justify-content-center">
+        <div class="col-lg-8">
+          <h2 class="fw-bold mb-5">Зарегистрироваться</h2>
+          {% if form.errors %}
+              {% for field in form %}
+                  {% for error in field.errors %}
+                      <div class="alert alert-danger">
+                          <strong>{{ error|escape }}</strong>
+                      </div>
+                  {% endfor %}
+              {% endfor %}
+              {% for error in form.non_field_errors %}
+                  <div class="alert alert-danger">
+                      <strong>{{ error|escape }}</strong>
+                  </div>
+              {% endfor %}
+          {% endif %}
+
+          <form method="post" action="{% url 'signup' %}">
+            {% csrf_token %}
+
+
+              <!-- 2 column grid layout with text inputs for the first and last names -->
+            <div class="row">
+                <div class="col-md-6 mb-4">
+                    {{ form.username }}
+                    <label for="inputUsername" class="form-label">Имя пользователя</label>
+                </div>
+
+                <!-- Email input -->
+                <div class="col-md-6 mb-4">
+                  {{ form.email }}
+                  <label class="form-label" for="inputEmail">Электронная почта</label>
+                </div>
+            </div>
+
+            <!-- Password input -->
+            <div class="form-outline mb-4">
+                {{ form.password }}
+                <label for="inputPassword" class="form-label">Пароль</label>
+            </div>
+
+            <div class="form-outline mb-4">
+                {{ form.repeat_password }}
+                <label for="reInputPassword" class="form-label">Подтвердите пароль</label>
+            </div>
+
+            <!-- Submit button -->
+            <button type="submit" class="btn btn-primary btn-block mb-4">
+              Зарегистрироваться
+            </button>
+
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- Section: Design Block -->
+{% endblock %}
+
