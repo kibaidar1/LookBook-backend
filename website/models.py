@@ -84,7 +84,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 
 class Clothes(models.Model):
     name = models.CharField(max_length=200)
-    description = RichTextUploadingField
+    description = RichTextUploadingField()
     image = models.ImageField()
     link = models.URLField()
 
@@ -124,7 +124,7 @@ class Style(models.Model):
 
 
 class Comment(models.Model):
-    style = models.ForeignKey(Style, on_delete=models.CASCADE, related_name='comments')
+    style = models.ForeignKey(Style, on_delete=models.CASCADE, related_name='comments', null=True)
     author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='comments')
     created_at = models.DateTimeField(default=timezone.now)
     text = RichTextUploadingField()
