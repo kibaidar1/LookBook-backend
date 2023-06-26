@@ -6,6 +6,29 @@ from django.db import models
 from django.utils import timezone
 
 
+UNISEX = 'us'
+MALE = 'ml'
+FEMALE = 'fl'
+SEX_CHOICES = [(UNISEX, 'unisex'), (MALE, 'male'), (FEMALE, 'female')]
+
+WHITE = 'wt'
+RED = 'rd'
+PINK = 'pk'
+ORANGE = 'or'
+YELLOW = 'yl'
+LIGHT_GREEN = 'lgn'
+GREEN = 'gn'
+LIGHT_BLUE = 'lbl'
+BLUE = 'bl'
+PURPLE = 'pr'
+BROWN = 'br'
+BLACK = 'bk'
+
+COLOUR_CHOICES = [(WHITE, 'white'), (RED, 'red'), (PINK, 'pink'), (ORANGE, 'orange'), (YELLOW, 'yellow'),
+                  (LIGHT_GREEN, 'light_green'), (GREEN, 'green'), (LIGHT_BLUE, 'light_blue'), (PURPLE, 'purple'),
+                  (BROWN, 'brown'), (BLACK, 'black')]
+
+
 class UserManager(BaseUserManager):
     def create_user(self, username, email, password):
         if username is None:
@@ -84,8 +107,13 @@ class User(AbstractBaseUser, PermissionsMixin):
 
 class Clothes(models.Model):
     name = models.CharField(max_length=200)
+    colour = models.CharField(choices=COLOUR_CHOICES, null=True, blank=True, max_length=3)
+    gender = models.CharField(choices=SEX_CHOICES, default=UNISEX, max_length=2)
     description = RichTextUploadingField()
     image = models.ImageField()
+    slug = models.SlugField(unique=True)
+    created_at = models.DateField(default=timezone.now)
+    author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='clothes')
 
     class Meta:
         ordering = ['name']
@@ -99,28 +127,29 @@ class ClothesLink(models.Model):
     clothes = models.ForeignKey(Clothes, on_delete=models.CASCADE, related_name='links')
 
 
-class Style(models.Model):
+class Look(models.Model):
     name = models.CharField(max_length=200)
     description = RichTextUploadingField()
+    gender = models.CharField(choices=SEX_CHOICES, default=UNISEX, max_length=2)
     image = models.ImageField()
-    clothes = models.ManyToManyField(Clothes, related_name='styles')
+    clothes = models.ManyToManyField(Clothes, related_name='looks')
     slug = models.SlugField(unique=True)
     created_at = models.DateField(default=timezone.now)
-    author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='posts')
+    author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='looks')
 
     class Meta:
         ordering = ['-created_at']
 
-    def get_prev_style(self):
+    def get_prev_look(self):
         try:
             return self.get_previous_by_created_at()
-        except Style.DoesNotExist:
+        except Look.DoesNotExist:
             return None
 
-    def get_next_style(self):
+    def get_next_look(self):
         try:
             return self.get_next_by_created_at()
-        except Style.DoesNotExist:
+        except Look.DoesNotExist:
             return None
 
     def __str__(self):
@@ -128,7 +157,7 @@ class Style(models.Model):
 
 
 class Comment(models.Model):
-    style = models.ForeignKey(Style, on_delete=models.CASCADE, related_name='comments', null=True)
+    look = models.ForeignKey(Look, on_delete=models.CASCADE, related_name='comments', null=True)
     author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='comments')
     created_at = models.DateTimeField(default=timezone.now)
     text = RichTextUploadingField()

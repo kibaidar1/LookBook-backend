@@ -5,7 +5,7 @@ from django.shortcuts import render, get_object_or_404
 from django.views import View
 
 from website.forms import CommentForm, SigUpForm, SignInForm
-from website.models import Style, Comment
+from website.models import Style, Comment, Clothes
 
 
 class MainView(View):
@@ -31,6 +31,7 @@ class MainView(View):
 class StyleDetailView(View):
     def get(self, request, slug, *args, **kwargs):
         style = get_object_or_404(Style, slug=slug)
+        clothes = Clothes.objects.filter(style=style)
 
         prev_style = style.get_prev_style()
         next_style = style.get_next_style()
@@ -38,6 +39,7 @@ class StyleDetailView(View):
 
         return render(request, 'style_detail.html', context={
             'style': style,
+            'clothes': clothes,
             'prev_style': prev_style,
             'next_style': next_style,
             'comment_form': comment_form
