@@ -1,14 +1,14 @@
 from django.contrib import admin
 
-from website.models import User, Style, Comment, Clothes, ClothesLink
+from core.models import User, Look, Comment, Clothes, ClothesLink
 
 
-class StyleInline(admin.TabularInline):
-    model = Style.clothes.through
+class LookInline(admin.TabularInline):
+    model = Look.clothes.through
 
 
 class ClothesInline(admin.TabularInline):
-    model = Clothes.styles.through
+    model = Clothes.looks.through
 
 
 class ClothesLinkInline(admin.TabularInline):
@@ -21,37 +21,42 @@ class UserAdmin(admin.ModelAdmin):
         (None, {'fields': ('username', 'password')}),
         ('Personal info', {'fields': ('email',)}),
         ('Permissions', {
-            'fields': ('is_active', 'is_staff', 'is_superuser', 'groups', 'user_permissions',),
+            'fields': ('is_active', 'is_staff', 'is_superuser', 'user_permissions',),
         }),
     )
     list_display = ('username', 'email', 'is_staff')
-    list_filter = ('is_staff', 'is_superuser', 'is_active', 'groups')
+    list_filter = ('is_staff', 'is_superuser', 'is_active')
     search_fields = ('username', 'first_name', 'last_name', 'email')
     ordering = ('username',)
-    filter_horizontal = ('groups', 'user_permissions',)
+    filter_horizontal = ('user_permissions',)
 
 
 @admin.register(Clothes)
 class ClothesAdmin(admin.ModelAdmin):
-    fields = ('name', 'description', 'image')
-    list_display = ('name',)
-    list_filter = ('name',)
-    search_fields = ('name',)
+    fieldsets = (
+        (None, {'fields': ('name', 'slug')}),
+        ('Content', {'fields': ('colour', 'gender', 'description', 'image')}),
+        ('Context', {'fields': ('author', 'created_at')}),
+    )
+    list_display = ('name', 'slug', 'created_at', 'author', 'colour', 'gender')
+    list_filter = ('name', 'colour', 'gender')
+    search_fields = ('name', 'slug', 'author')
+    prepopulated_fields = {'slug': ('name',)}
 
     inlines = [
         ClothesLinkInline,
-        StyleInline,
+        LookInline,
     ]
 
 
-@admin.register(Style)
-class StyleAdmin(admin.ModelAdmin):
+@admin.register(Look)
+class LookAdmin(admin.ModelAdmin):
     fieldsets = (None, {'fields': ('name', 'slug')}), \
-        ('Content', {'fields': ('description', 'image')}), \
+        ('Content', {'fields': ('description', 'gender', 'image')}), \
         ('Context', {'fields': ('author', 'created_at')}),
-    list_display = ('name', 'slug', 'description', 'author', 'created_at',)
-    list_filter = ('name', 'author', 'created_at')
-    search_fields = ('name', 'author', 'created_at',)
+    list_display = ('name', 'slug', 'gender', 'author', 'created_at',)
+    list_filter = ('name', 'gender', 'author', 'created_at')
+    search_fields = ('name', 'slug', 'author')
     prepopulated_fields = {'slug': ('name',)}
 
     inlines = [
@@ -61,9 +66,9 @@ class StyleAdmin(admin.ModelAdmin):
 
 @admin.register(Comment)
 class CommentAdmin(admin.ModelAdmin):
-    fields = ('style', 'author', 'created_at', 'text')
-    list_display = ('author', 'style', 'created_at')
-    list_filter = ('author', 'style', 'created_at')
-    search_fields = ('author', 'style')
+    fields = ('look', 'author', 'created_at', 'text')
+    list_display = ('author', 'look', 'created_at')
+    list_filter = ('author', 'look', 'created_at')
+    search_fields = ('author', 'look')
 
 

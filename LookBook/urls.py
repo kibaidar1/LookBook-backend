@@ -23,10 +23,9 @@ from LookBook import settings
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path("lookbook/", include('core.urls')),
-    path("lookbook/token/", TokenObtainPairView.as_view(), name="token"),
-    path("lookbook/refresh_token/", TokenRefreshView.as_view(), name="refresh_token"),
-    path('', include('website.urls')),
+    path("", include('core.urls')),
+    path("token/", TokenObtainPairView.as_view(), name="token"),
+    path("refresh_token/", TokenRefreshView.as_view(), name="refresh_token"),
     path('ckeditor/', include('ckeditor_uploader.urls')),
         ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 

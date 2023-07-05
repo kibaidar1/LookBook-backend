@@ -11,11 +11,11 @@ class ClothesLinkSerializer(serializers.ModelSerializer):
 
 class ClothesSerializer(serializers.ModelSerializer):
     author = serializers.ReadOnlyField(source='author.username')
-    links = serializers.ReadOnlyField(source='links.link')
+    links = ClothesLinkSerializer(many=True, read_only=True)
 
     class Meta:
         model = Clothes
-        fields = ['name', 'description', 'gender', 'image', 'links', 'slug', 'updated_at', 'author']
+        fields = ['name', 'slug', 'gender', 'description', 'image', 'links', 'author', 'created_at']
         read_only_fields = ['author']
         extra_kwargs = {
             'url': {'lookup_field': 'slug'}
@@ -28,8 +28,8 @@ class LookSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Look
-        fields = ['name', 'description', 'gender', 'image', 'clothes', 'slug', 'updated_at', 'author']
-        read_only_fields = ['author',]
+        fields = ['name', 'description', 'gender', 'image', 'clothes', 'slug', 'created_at', 'author']
+        read_only_fields = ['author']
         extra_kwargs = {
             'url': {'lookup_field': 'slug'}
         }
