@@ -1,15 +1,12 @@
-from django.shortcuts import render
-from nested_multipart_parser.drf import DrfNestedParser
 from rest_framework.generics import CreateAPIView, get_object_or_404, \
     RetrieveDestroyAPIView
-from rest_framework.parsers import MultiPartParser, JSONParser, FormParser
 from rest_framework.permissions import DjangoModelPermissions
 from rest_framework.viewsets import ReadOnlyModelViewSet, ModelViewSet
 from rest_framework import status, filters
 
-from core.models import Look, Clothes, LookImages
-from core.permissions import IsAuthorOrReadOnly, LookIsAuthorOrReadOnly
-from core.serializers import LookSerializer, ClothesSerializer, LookImagesSerializer
+from core.models import Look, Clothes, LookImages, ClothesLink
+from core.permissions import IsAuthorOrReadOnly, LookIsAuthorOrReadOnly, ClothesIsAuthorOrReadOnly
+from core.serializers import LookSerializer, ClothesSerializer, LookImagesSerializer, ClothesLinkSerializer
 
 
 class ReadOnlyLooksViewSet(ReadOnlyModelViewSet):
@@ -53,7 +50,7 @@ class ImageCreateAPIView(CreateAPIView):
         return serializer.save(look=look)
 
 
-class ImageRetrieveDestroyAPIView(RetrieveDestroyAPIView):
+class LookImagesRetrieveDestroyAPIView(RetrieveDestroyAPIView):
     serializer_class = LookImagesSerializer
     permission_classes = [DjangoModelPermissions, LookIsAuthorOrReadOnly]
     # lookup_field = 'pk'
@@ -68,11 +65,21 @@ class MyClothesViewSet(ModelViewSet):
     serializer_class = ClothesSerializer
     permission_classes = [DjangoModelPermissions, IsAuthorOrReadOnly]
     lookup_field = 'slug'
-    parser_classes = (DrfNestedParser, MultiPartParser, FormParser, JSONParser)
 
     def perform_create(self, serializer):
-        print(self.request.data)
         serializer.save(author=self.request.user)
 
     def get_queryset(self):
         return Clothes.objects.filter(author=self.request.user)
+
+
+class ClothesLinkRetrieveDestroyAPIView(RetrieveDestroyAPIView):
+    serializer_class = ClothesLinkSerializer
+    permission_classes = [DjangoModelPermissions, ClothesIsAuthorOrReadOnly]
+
+    # lookup_field = 'pk'
+
+    def get_queryset(self):
+        clothes_slug = self.kwargs['clothes_slug']
+        clothes = get_object_or_404(queryset=Clothes, author=self.request.user, slug=clothes_slug)
+        return ClothesLink.objects.filter(clothes=clothes)

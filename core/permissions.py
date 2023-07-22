@@ -1,7 +1,7 @@
 from rest_framework import permissions
 from rest_framework.permissions import BasePermission
 
-from core.models import Look
+from core.models import Look, Clothes
 
 
 class IsAuthorOrReadOnly(BasePermission):
@@ -33,3 +33,9 @@ class LookIsAuthorOrReadOnly(NestedIsAuthorOrReadOnly):
     model = Look
     foreign_field = 'look'
     slug = 'look_slug'
+
+
+class ClothesIsAuthorOrReadOnly(NestedIsAuthorOrReadOnly):
+    model = Clothes
+    foreign_field = 'clothes'
+    slug = 'clothes_slug'

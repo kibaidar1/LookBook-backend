@@ -6,7 +6,7 @@ from .models import User, Look, Clothes, ClothesLink, LookImages
 class ClothesLinkSerializer(serializers.ModelSerializer):
     class Meta:
         model = ClothesLink
-        fields = ['link']
+        fields = ['id', 'link']
 
 
 class ClothesSerializer(serializers.ModelSerializer):
@@ -21,6 +21,13 @@ class ClothesSerializer(serializers.ModelSerializer):
         extra_kwargs = {
             'url': {'lookup_field': 'slug'}
         }
+
+    def create(self, validated_data):
+        links = validated_data.pop('links')
+        clothes = Clothes.objects.create(**validated_data)
+        for link in links:
+            ClothesLink.objects.create(clothes=clothes, **link)
+        return clothes
 
 
 class LookImagesSerializer(serializers.ModelSerializer):
