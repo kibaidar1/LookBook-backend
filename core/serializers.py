@@ -1,6 +1,14 @@
 from django.core.exceptions import ObjectDoesNotExist
 from rest_framework import serializers
-from .models import User, Look, Clothes, ClothesLink, LookImages
+from .models import User, Look, Clothes, ClothesLink, LookImages, Comment
+
+
+class CommentSerializer(serializers.ModelSerializer):
+    author = serializers.ReadOnlyField(source='author.username')
+
+    class Meta:
+        model = Comment
+        fields = "__all__"
 
 
 class ClothesLinkSerializer(serializers.ModelSerializer):
@@ -40,6 +48,7 @@ class LookSerializer(serializers.ModelSerializer):
     clothes = ClothesSerializer(many=True, read_only=True)
     images = LookImagesSerializer(many=True, read_only=True)
     author = serializers.ReadOnlyField(source='author.username')
+    comments = CommentSerializer(many=True, read_only=True)
     read_only_fields = ['images', 'created_at', 'author']
 
     class Meta:

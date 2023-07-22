@@ -114,7 +114,7 @@ class Clothes(models.Model):
     gender = models.CharField(choices=SEX_CHOICES, default=UNISEX, max_length=2)
     description = RichTextUploadingField()
     slug = models.SlugField(unique=True, blank=True)
-    created_at = models.DateField(default=datetime.date.today)
+    created_at = models.DateField(auto_now_add=True)
     author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='clothes')
 
     class Meta:
@@ -140,7 +140,7 @@ class Look(models.Model):
     gender = models.CharField(choices=SEX_CHOICES, default=UNISEX, max_length=2)
     clothes = models.ManyToManyField(Clothes, related_name='looks')
     slug = models.SlugField(unique=True, blank=True)
-    created_at = models.DateField(default=datetime.date.today)
+    created_at = models.DateField(auto_now_add=True)
     author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='looks')
 
     class Meta:
@@ -175,7 +175,7 @@ class LookImages(models.Model):
 class Comment(models.Model):
     look = models.ForeignKey(Look, on_delete=models.CASCADE, related_name='comments', null=True)
     author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='comments')
-    created_at = models.DateTimeField(default=timezone.now)
+    created_at = models.DateTimeField(auto_now_add=True)
     text = RichTextUploadingField()
 
     class Meta:

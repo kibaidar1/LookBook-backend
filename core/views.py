@@ -4,9 +4,10 @@ from rest_framework.permissions import DjangoModelPermissions
 from rest_framework.viewsets import ReadOnlyModelViewSet, ModelViewSet
 from rest_framework import status, filters
 
-from core.models import Look, Clothes, LookImages, ClothesLink
+from core.models import Look, Clothes, LookImages, ClothesLink, Comment
 from core.permissions import IsAuthorOrReadOnly, LookIsAuthorOrReadOnly, ClothesIsAuthorOrReadOnly
-from core.serializers import LookSerializer, ClothesSerializer, LookImagesSerializer, ClothesLinkSerializer
+from core.serializers import LookSerializer, ClothesSerializer, LookImagesSerializer, ClothesLinkSerializer, \
+    CommentSerializer
 
 
 class ReadOnlyLooksViewSet(ReadOnlyModelViewSet):
@@ -83,3 +84,14 @@ class ClothesLinkRetrieveDestroyAPIView(RetrieveDestroyAPIView):
         clothes_slug = self.kwargs['clothes_slug']
         clothes = get_object_or_404(queryset=Clothes, author=self.request.user, slug=clothes_slug)
         return ClothesLink.objects.filter(clothes=clothes)
+
+
+class MyCommentsViewSet(ModelViewSet):
+    serializer_class = CommentSerializer
+    permission_classes = [DjangoModelPermissions, IsAuthorOrReadOnly]
+
+    def perform_create(self, serializer):
+        serializer.save(author=self.request.user)
+
+    def get_queryset(self):
+        return Comment.objects.filter(author=self.request.user)
