@@ -1,10 +1,14 @@
 from django.contrib import admin
 
-from core.models import User, Look, Comment, Clothes, ClothesLink
+from core.models import User, Look, Comment, Clothes, ClothesLink, LookImages
 
 
 class LookInline(admin.TabularInline):
     model = Look.clothes.through
+
+
+class LookImagesInline(admin.StackedInline):
+    model = LookImages
 
 
 class ClothesInline(admin.TabularInline):
@@ -13,6 +17,10 @@ class ClothesInline(admin.TabularInline):
 
 class ClothesLinkInline(admin.TabularInline):
     model = ClothesLink
+
+
+# class ClothesImagesInline(admin.StackedInline):
+#     model = ClothesImages
 
 
 @admin.register(User)
@@ -35,7 +43,7 @@ class UserAdmin(admin.ModelAdmin):
 class ClothesAdmin(admin.ModelAdmin):
     fieldsets = (
         (None, {'fields': ('name', 'slug')}),
-        ('Content', {'fields': ('colour', 'gender', 'description', 'image')}),
+        ('Content', {'fields': ('colour', 'gender', 'description')}),
         ('Context', {'fields': ('author', 'created_at')}),
     )
     list_display = ('name', 'slug', 'created_at', 'author', 'colour', 'gender')
@@ -44,6 +52,7 @@ class ClothesAdmin(admin.ModelAdmin):
     prepopulated_fields = {'slug': ('name',)}
 
     inlines = [
+        # ClothesImagesInline,
         ClothesLinkInline,
         LookInline,
     ]
@@ -52,7 +61,7 @@ class ClothesAdmin(admin.ModelAdmin):
 @admin.register(Look)
 class LookAdmin(admin.ModelAdmin):
     fieldsets = (None, {'fields': ('name', 'slug')}), \
-        ('Content', {'fields': ('description', 'gender', 'image')}), \
+        ('Content', {'fields': ('description', 'gender')}), \
         ('Context', {'fields': ('author', 'created_at')}),
     list_display = ('name', 'slug', 'gender', 'author', 'created_at',)
     list_filter = ('name', 'gender', 'author', 'created_at')
@@ -60,6 +69,7 @@ class LookAdmin(admin.ModelAdmin):
     prepopulated_fields = {'slug': ('name',)}
 
     inlines = [
+        LookImagesInline,
         ClothesInline,
     ]
 

@@ -1,10 +1,13 @@
+import datetime
+
 from ckeditor_uploader.fields import RichTextUploadingField
 from django.contrib.auth.base_user import BaseUserManager, AbstractBaseUser
 from django.contrib.auth.models import PermissionsMixin
 from django.core import validators
 from django.db import models
 from django.utils import timezone
-
+from django.utils.text import slugify
+from unidecode import unidecode
 
 UNISEX = 'us'
 MALE = 'ml'
@@ -110,9 +113,8 @@ class Clothes(models.Model):
     colour = models.CharField(choices=COLOUR_CHOICES, null=True, blank=True, max_length=3)
     gender = models.CharField(choices=SEX_CHOICES, default=UNISEX, max_length=2)
     description = RichTextUploadingField()
-    image = models.ImageField()
-    slug = models.SlugField(unique=True)
-    created_at = models.DateField(default=timezone.now)
+    slug = models.SlugField(unique=True, blank=True)
+    created_at = models.DateField(default=datetime.date.today)
     author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='clothes')
 
     class Meta:
@@ -120,6 +122,11 @@ class Clothes(models.Model):
 
     def __str__(self):
         return self.name
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(unidecode(self.name))
+        return super().save(*args, **kwargs)
 
 
 class ClothesLink(models.Model):
@@ -131,10 +138,9 @@ class Look(models.Model):
     name = models.CharField(max_length=200)
     description = RichTextUploadingField()
     gender = models.CharField(choices=SEX_CHOICES, default=UNISEX, max_length=2)
-    image = models.ImageField()
     clothes = models.ManyToManyField(Clothes, related_name='looks')
-    slug = models.SlugField(unique=True)
-    created_at = models.DateField(default=timezone.now)
+    slug = models.SlugField(unique=True, blank=True)
+    created_at = models.DateField(default=datetime.date.today)
     author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='looks')
 
     class Meta:
@@ -154,6 +160,16 @@ class Look(models.Model):
 
     def __str__(self):
         return self.name
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(unidecode(self.name))
+        return super().save(*args, **kwargs)
+
+
+class LookImages(models.Model):
+    look = models.ForeignKey(Look, on_delete=models.CASCADE, related_name='images')
+    image = models.ImageField(verbose_name='images')
 
 
 class Comment(models.Model):
