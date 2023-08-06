@@ -24,25 +24,10 @@ class ClothesSerializer(WritableNestedModelSerializer):
 
     class Meta:
         model = Clothes
-        # fields = ['name', 'slug', 'colour', 'gender', 'description', 'links', 'author', 'created_at']
-        fields = '__all__'
+        fields = ['id', 'name', 'slug', 'colour', 'gender', 'description', 'links', 'author', 'created_at']
         extra_kwargs = {
             'url': {'lookup_field': 'slug'}
         }
-
-    # def create(self, validated_data):
-    #     links = validated_data.pop('links')
-    #     clothes = Clothes.objects.create(**validated_data)
-    #     for link in links:
-    #         ClothesLink.objects.create(clothes=clothes, **link)
-    #     return clothes
-    #
-    # def update(self, instance, validated_data):
-    #     links = validated_data.pop('links')
-    #     instance = validated_data
-    #     for link in links:
-    #         instance.links = validated_data.get('links', instance.links)
-    #     return instance
 
 
 class LookImagesSerializer(serializers.ModelSerializer):
@@ -57,11 +42,12 @@ class LookSerializer(WritableNestedModelSerializer):
     author = serializers.ReadOnlyField(source='author.username')
     comments = CommentSerializer(many=True, read_only=True)
     read_only_fields = ['images', 'created_at', 'author']
+    likes = serializers.IntegerField(source='likes.count', read_only=True)
 
     class Meta:
         model = Look
-        # fields = ['name', 'description', 'gender', 'images', 'clothes', 'slug', 'created_at', 'author']
-        fields = '__all__'
+        fields = ['id', 'name', 'slug', 'gender', 'description',  'images', 'clothes', 'created_at', 'author',
+                  'likes', 'comments']
         extra_kwargs = {
             'url': {'lookup_field': 'slug'}
         }

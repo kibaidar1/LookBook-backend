@@ -142,6 +142,7 @@ class Look(models.Model):
     slug = models.SlugField(unique=True, blank=True)
     created_at = models.DateField(auto_now_add=True)
     author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='looks')
+    likes = models.ManyToManyField(User, related_name='likes')
 
     class Meta:
         ordering = ['-created_at']
@@ -183,3 +184,5 @@ class Comment(models.Model):
 
     def __str__(self):
         return self.text
+
+

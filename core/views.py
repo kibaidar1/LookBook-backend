@@ -1,20 +1,20 @@
 from rest_framework.generics import CreateAPIView, get_object_or_404, \
     RetrieveDestroyAPIView
-from rest_framework.permissions import DjangoModelPermissions, AllowAny
+from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
+from rest_framework.views import APIView
 from rest_framework.viewsets import ReadOnlyModelViewSet, ModelViewSet
 from rest_framework import status, filters
 
-from core.models import Look, Clothes, LookImages, ClothesLink, Comment, User
-from core.permissions import IsAuthorOrReadOnly, LookIsAuthorOrReadOnly, ClothesIsAuthorOrReadOnly
-from core.serializers import LookSerializer, ClothesSerializer, LookImagesSerializer, ClothesLinkSerializer, \
+from core.models import Look, Clothes, LookImages, Comment, User
+from core.permissions import IsAuthorOrReadOnly, LookIsAuthorOrReadOnly
+from core.serializers import LookSerializer, ClothesSerializer, LookImagesSerializer, \
     CommentSerializer, RegistrationUserSerializer
 
 
 class ReadOnlyLooksViewSet(ReadOnlyModelViewSet):
     search_fields = ['name', 'gender', 'author__username', 'created_at']
     filter_backends = (filters.SearchFilter,)
-    # permission_classes = [DjangoModelPermissions]
     queryset = Look.objects.all()
     serializer_class = LookSerializer
     lookup_field = 'slug'
@@ -23,7 +23,6 @@ class ReadOnlyLooksViewSet(ReadOnlyModelViewSet):
 class ReadOnlyClothesViewSet(ReadOnlyModelViewSet):
     search_fields = ['name', 'colour', 'gender', 'author__username', 'created_at']
     filter_backends = (filters.SearchFilter,)
-    # permission_classes = [DjangoModelPermissions]
     queryset = Clothes.objects.all()
     serializer_class = ClothesSerializer
     lookup_field = 'slug'
@@ -31,7 +30,7 @@ class ReadOnlyClothesViewSet(ReadOnlyModelViewSet):
 
 class MyLooksViewSet(ModelViewSet):
     serializer_class = LookSerializer
-    permission_classes = [DjangoModelPermissions, IsAuthorOrReadOnly]
+    permission_classes = [IsAuthorOrReadOnly]
     lookup_field = 'slug'
 
     def perform_create(self, serializer):
@@ -43,7 +42,7 @@ class MyLooksViewSet(ModelViewSet):
 
 class ImageCreateAPIView(CreateAPIView):
     serializer_class = LookImagesSerializer
-    permission_classes = [DjangoModelPermissions, IsAuthorOrReadOnly]
+    permission_classes = [IsAuthorOrReadOnly]
     queryset = LookImages.objects.all()
 
     def perform_create(self, serializer):
@@ -54,7 +53,7 @@ class ImageCreateAPIView(CreateAPIView):
 
 class LookImagesRetrieveDestroyAPIView(RetrieveDestroyAPIView):
     serializer_class = LookImagesSerializer
-    permission_classes = [DjangoModelPermissions, LookIsAuthorOrReadOnly]
+    permission_classes = [LookIsAuthorOrReadOnly]
     # lookup_field = 'pk'
 
     def get_queryset(self):
@@ -75,21 +74,9 @@ class MyClothesViewSet(ModelViewSet):
         return Clothes.objects.filter(author=self.request.user)
 
 
-class ClothesLinkRetrieveDestroyAPIView(RetrieveDestroyAPIView):
-    serializer_class = ClothesLinkSerializer
-    permission_classes = [DjangoModelPermissions, ClothesIsAuthorOrReadOnly]
-
-    # lookup_field = 'pk'
-
-    def get_queryset(self):
-        clothes_slug = self.kwargs['clothes_slug']
-        clothes = get_object_or_404(queryset=Clothes, author=self.request.user, slug=clothes_slug)
-        return ClothesLink.objects.filter(clothes=clothes)
-
-
 class MyCommentsViewSet(ModelViewSet):
     serializer_class = CommentSerializer
-    permission_classes = [DjangoModelPermissions, IsAuthorOrReadOnly]
+    permission_classes = [IsAuthorOrReadOnly]
 
     def perform_create(self, serializer):
         return serializer.save(author=self.request.user)
@@ -113,5 +100,18 @@ class RegistrationUserView(CreateAPIView):
         else:
             data = serializer.errors
             return Response(data)
+
+
+class LikeCreateAPIView(APIView):
+    queryset = User.objects.all()
+
+    def post(self, request, **kwargs):
+        look = get_object_or_404(Look, slug=request.data.get('slug'))
+        if request.user not in look.likes.all():
+            request.user.likes.add(look)
+            return Response({'detail': 'Successfully liked'}, status=status.HTTP_200_OK)
+        else:
+            request.user.likes.remove(look)
+            return Response({'detail': 'Successfully unliked'}, status=status.HTTP_200_OK)
 
 
