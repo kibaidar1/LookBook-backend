@@ -1,4 +1,4 @@
-/NeuroBlog/NeuroBlog/.env
+/LookBook/.env
 venv/
 *.log
 build/
