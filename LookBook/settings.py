@@ -14,11 +14,13 @@ from datetime import timedelta
 from pathlib import Path
 import environ
 
-env = environ.Env()
-environ.Env.read_env()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+ENV_DIR = environ.Path(__file__) - 2
+env = environ.Env()
+env.read_env(ENV_DIR('.env'), overwrite=True)
 
 
 # Quick-start development settings - unsuitable for production

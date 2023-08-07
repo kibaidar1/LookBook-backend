@@ -1,4 +1,4 @@
-/LookBook/.env
+/.env
 venv/
 *.log
 build/
