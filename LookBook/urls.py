@@ -17,6 +17,7 @@ Including another URLconf
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path, include
+from drf_spectacular.views import SpectacularSwaggerView, SpectacularAPIView
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
 from LookBook import settings
@@ -26,6 +27,8 @@ urlpatterns = [
     path("", include('core.urls')),
     path("token/", TokenObtainPairView.as_view(), name="token"),
     path("refresh_token/", TokenRefreshView.as_view(), name="refresh_token"),
+    path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
+    path('api/docs/', SpectacularSwaggerView.as_view(url_name='schema'), name='docs'),
     path('ckeditor/', include('ckeditor_uploader.urls')),
         ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
