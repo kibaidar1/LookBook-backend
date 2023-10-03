@@ -1,17 +1,17 @@
 backports.zoneinfo;python_version<"3.9"
 asgiref
 beautifulsoup4
-Django==4.2
+Django
 django-bootstrap5
 django-ckeditor
 django-cors-headers
 django-environ
 django-js-asset
-djangorestframework==3.14.0
+djangorestframework
 djangorestframework-simplejwt
-drf-writable-nested==0.7.0
+drf-writable-nested
 Pillow
-# psycopg2==2.9.6
+# psycopg2
 PyJWT
 pytz
 soupsieve
