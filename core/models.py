@@ -15,6 +15,7 @@ FEMALE = 'fl'
 SEX_CHOICES = [(UNISEX, 'unisex'), (MALE, 'male'), (FEMALE, 'female')]
 
 WHITE = 'wt'
+GRAY = 'gr'
 RED = 'rd'
 PINK = 'pk'
 ORANGE = 'or'
@@ -27,7 +28,7 @@ PURPLE = 'pr'
 BROWN = 'br'
 BLACK = 'bk'
 
-COLOUR_CHOICES = [(WHITE, 'white'), (RED, 'red'), (PINK, 'pink'), (ORANGE, 'orange'), (YELLOW, 'yellow'),
+COLOUR_CHOICES = [(WHITE, 'white'), (GRAY, 'gray'), (RED, 'red'), (PINK, 'pink'), (ORANGE, 'orange'), (YELLOW, 'yellow'),
                   (LIGHT_GREEN, 'light_green'), (GREEN, 'green'), (LIGHT_BLUE, 'light_blue'), (PURPLE, 'purple'),
                   (BROWN, 'brown'), (BLACK, 'black')]
 
@@ -112,7 +113,7 @@ class Clothes(models.Model):
     name = models.CharField(max_length=200)
     colour = models.CharField(choices=COLOUR_CHOICES, null=True, blank=True, max_length=3)
     gender = models.CharField(choices=SEX_CHOICES, default=UNISEX, max_length=2)
-    description = RichTextUploadingField()
+    description = RichTextUploadingField(null=True, blank=True)
     slug = models.SlugField(unique=True, blank=True)
     created_at = models.DateField(auto_now_add=True)
     author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='clothes')
@@ -136,7 +137,7 @@ class ClothesLink(models.Model):
 
 class Look(models.Model):
     name = models.CharField(max_length=200)
-    description = RichTextUploadingField()
+    description = RichTextUploadingField(null=True, blank=True)
     gender = models.CharField(choices=SEX_CHOICES, default=UNISEX, max_length=2)
     clothes = models.ManyToManyField(Clothes, related_name='looks')
     slug = models.SlugField(unique=True, blank=True)

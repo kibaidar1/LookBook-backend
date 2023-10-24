@@ -27,6 +27,7 @@ class ReadOnlyLooksViewSet(ReadOnlyModelViewSet):
     lookup_field = 'slug'
 
 
+@extend_schema(tags=['Clothes'])
 @extend_schema_view(
     list=extend_schema(
             summary="Получение списка вещей",
@@ -40,6 +41,7 @@ class ReadOnlyClothesViewSet(ReadOnlyModelViewSet):
     lookup_field = 'slug'
 
 
+@extend_schema(tags=['Looks'])
 @extend_schema_view(
     list=extend_schema(
             summary="Получение списка моих образов",
@@ -66,6 +68,7 @@ class MyLooksViewSet(ModelViewSet):
         return Look.objects.filter(author=self.request.user)
 
 
+@extend_schema(tags=['Looks'])
 @extend_schema_view(
     create=extend_schema(
         summary="Добавление изобржений к образу",
@@ -82,6 +85,7 @@ class ImageCreateAPIView(CreateAPIView):
         return serializer.save(look=look)
 
 
+@extend_schema(tags=['Looks'])
 @extend_schema_view(
     get=extend_schema(
         summary="Получение изобржений образа"
@@ -101,6 +105,7 @@ class LookImagesRetrieveDestroyAPIView(RetrieveDestroyAPIView):
         return LookImages.objects.filter(look=look)
 
 
+@extend_schema(tags=['Clothes'])
 @extend_schema_view(
     list=extend_schema(
             summary="Получение списка моих вещей",
@@ -191,5 +196,4 @@ class LikeCreateAPIView(APIView):
         else:
             request.user.likes.remove(look)
             return Response({'detail': 'Successfully unliked'}, status=status.HTTP_200_OK)
-
 
