@@ -1,7 +1,7 @@
 from drf_spectacular.utils import extend_schema_view, extend_schema
 from rest_framework.generics import CreateAPIView, get_object_or_404, \
     RetrieveDestroyAPIView
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import ReadOnlyModelViewSet, ModelViewSet
@@ -58,7 +58,7 @@ class ReadOnlyClothesViewSet(ReadOnlyModelViewSet):
 )
 class MyLooksViewSet(ModelViewSet):
     serializer_class = LookSerializer
-    permission_classes = [IsAuthorOrReadOnly]
+    permission_classes = [IsAuthenticated, IsAuthorOrReadOnly]
     lookup_field = 'slug'
 
     def perform_create(self, serializer):
@@ -76,7 +76,7 @@ class MyLooksViewSet(ModelViewSet):
 )
 class ImageCreateAPIView(CreateAPIView):
     serializer_class = LookImagesSerializer
-    permission_classes = [IsAuthorOrReadOnly]
+    permission_classes = [IsAuthenticated, IsAuthorOrReadOnly]
     queryset = LookImages.objects.all()
 
     def perform_create(self, serializer):
@@ -96,8 +96,7 @@ class ImageCreateAPIView(CreateAPIView):
 )
 class LookImagesRetrieveDestroyAPIView(RetrieveDestroyAPIView):
     serializer_class = LookImagesSerializer
-    permission_classes = [LookIsAuthorOrReadOnly]
-    # lookup_field = 'pk'
+    permission_classes = [IsAuthenticated, LookIsAuthorOrReadOnly]
 
     def get_queryset(self):
         look_slug = self.kwargs['look_slug']
@@ -122,7 +121,7 @@ class LookImagesRetrieveDestroyAPIView(RetrieveDestroyAPIView):
 )
 class MyClothesViewSet(ModelViewSet):
     serializer_class = ClothesSerializer
-    permission_classes = [IsAuthorOrReadOnly]
+    permission_classes = [IsAuthenticated, IsAuthorOrReadOnly]
     lookup_field = 'slug'
 
     def perform_create(self, serializer):
@@ -148,7 +147,7 @@ class MyClothesViewSet(ModelViewSet):
 )
 class MyCommentsViewSet(ModelViewSet):
     serializer_class = CommentSerializer
-    permission_classes = [IsAuthorOrReadOnly]
+    permission_classes = [IsAuthenticated, IsAuthorOrReadOnly]
 
     def perform_create(self, serializer):
         return serializer.save(author=self.request.user)
@@ -187,6 +186,7 @@ class RegistrationUserView(CreateAPIView):
 )
 class LikeCreateAPIView(APIView):
     queryset = User.objects.all()
+    permission_classes = [IsAuthenticated]
 
     def post(self, request, **kwargs):
         look = get_object_or_404(Look, slug=request.data.get('slug'))
