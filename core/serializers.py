@@ -1,6 +1,8 @@
 from drf_writable_nested import WritableNestedModelSerializer
 from rest_framework import serializers
-from .models import User, Look, Clothes, ClothesLink, LookImages, Comment
+from rest_framework.fields import CurrentUserDefault
+
+from .models import User, Look, Clothes, ClothesLink, LookImages, Comment, ClothesCategory
 
 
 class CommentSerializer(serializers.ModelSerializer):
@@ -18,16 +20,25 @@ class ClothesLinkSerializer(serializers.ModelSerializer):
 
 
 class ClothesSerializer(WritableNestedModelSerializer):
-    author = serializers.ReadOnlyField(source='author.username')
+    author = serializers.HiddenField(default=CurrentUserDefault())
+    authors_name = serializers.ReadOnlyField(source='author.username')
     links = ClothesLinkSerializer(many=True, required=False)
     read_only_fields = ['images', 'created_at', 'author']
 
     class Meta:
         model = Clothes
-        fields = ['id', 'name', 'slug', 'colour', 'gender', 'description', 'links', 'author', 'created_at']
+        fields = ['id', 'name', 'slug', 'colour', 'gender', 'links', 'author', 'authors_name', 'created_at']
         extra_kwargs = {
             'url': {'lookup_field': 'slug'}
         }
+
+
+class ClothesCategorySerializer(WritableNestedModelSerializer):
+    clothes = ClothesSerializer(many=True, required=False)
+
+    class Meta:
+        model = ClothesCategory
+        fields = ['id', 'name', 'clothes']
 
 
 class LookImagesSerializer(serializers.ModelSerializer):
@@ -37,17 +48,18 @@ class LookImagesSerializer(serializers.ModelSerializer):
 
 
 class LookSerializer(WritableNestedModelSerializer):
-    clothes = ClothesSerializer(many=True, required=False)
     images = LookImagesSerializer(many=True, read_only=True)
-    author = serializers.ReadOnlyField(source='author.username')
+    clothes_category = ClothesCategorySerializer(many=True, required=False)
+    author = serializers.HiddenField(default=CurrentUserDefault())
+    authors_name = serializers.ReadOnlyField(source='author.username')
     comments = CommentSerializer(many=True, read_only=True)
     read_only_fields = ['images', 'created_at', 'author']
     likes = serializers.IntegerField(source='likes.count', read_only=True)
 
     class Meta:
         model = Look
-        fields = ['id', 'name', 'slug', 'gender', 'description',  'images', 'clothes', 'created_at', 'author',
-                  'likes', 'comments']
+        fields = ['id', 'name', 'slug', 'gender', 'description',  'images', 'clothes_category', 'created_at',
+                  'author', 'authors_name', 'likes', 'comments']
         extra_kwargs = {
             'url': {'lookup_field': 'slug'}
         }
@@ -58,7 +70,6 @@ class RegistrationUserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        # fields = ['email', 'username', 'password', 'password2']
         fields = '__all__'
 
     def save(self, *args, **kwargs):

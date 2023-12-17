@@ -121,7 +121,7 @@ class MyLooksViewSetTest(TestCase):
         self.client.force_authenticate(user)
         slug = self.test_user_look.slug
         response = self.client.delete(reverse('my_looks-detail', args=[slug]))
-        deleted_look = Look.objects.filter(slug=slug) or False
+        deleted_look = Look.objects.filter(slug=slug)
         self.assertEquals(response.status_code, status.HTTP_204_NO_CONTENT)
         self.assertFalse(deleted_look, msg='look is not deleted')
 

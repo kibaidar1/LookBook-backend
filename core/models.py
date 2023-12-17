@@ -6,6 +6,7 @@ from django.contrib.auth.models import PermissionsMixin
 from django.core import validators
 from django.db import models
 from django.utils import timezone
+from django.utils.safestring import mark_safe
 from django.utils.text import slugify
 from unidecode import unidecode
 
@@ -109,37 +110,10 @@ class User(AbstractBaseUser, PermissionsMixin):
         return self.username
 
 
-class Clothes(models.Model):
-    name = models.CharField(max_length=200)
-    colour = models.CharField(choices=COLOUR_CHOICES, null=True, blank=True, max_length=3)
-    gender = models.CharField(choices=SEX_CHOICES, default=UNISEX, max_length=2)
-    description = RichTextUploadingField(null=True, blank=True)
-    slug = models.SlugField(unique=True, blank=True)
-    created_at = models.DateField(auto_now_add=True)
-    author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='clothes')
-
-    class Meta:
-        ordering = ['name']
-
-    def __str__(self):
-        return self.name
-
-    def save(self, *args, **kwargs):
-        if not self.slug:
-            self.slug = slugify(unidecode(self.name))
-        return super().save(*args, **kwargs)
-
-
-class ClothesLink(models.Model):
-    link = models.URLField()
-    clothes = models.ForeignKey(Clothes, on_delete=models.CASCADE, related_name='links')
-
-
 class Look(models.Model):
     name = models.CharField(max_length=200)
     description = RichTextUploadingField(null=True, blank=True)
     gender = models.CharField(choices=SEX_CHOICES, default=UNISEX, max_length=2)
-    clothes = models.ManyToManyField(Clothes, related_name='looks')
     slug = models.SlugField(unique=True, blank=True)
     created_at = models.DateField(auto_now_add=True)
     author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='looks')
@@ -169,9 +143,49 @@ class Look(models.Model):
         return super().save(*args, **kwargs)
 
 
+class ClothesCategory(models.Model):
+    name = models.CharField(max_length=200)
+    look = models.ForeignKey(Look, on_delete=models.CASCADE, related_name='clothes_category', null=True)
+
+    def __str__(self):
+        return f'{self.look.name}: {self.name}'
+
+
+class Clothes(models.Model):
+    name = models.CharField(max_length=200)
+    colour = models.CharField(choices=COLOUR_CHOICES, null=True, blank=True, max_length=3)
+    gender = models.CharField(choices=SEX_CHOICES, default=UNISEX, max_length=2)
+    category = models.ManyToManyField(ClothesCategory, related_name='clothes')
+    slug = models.SlugField(unique=True, blank=True)
+    created_at = models.DateField(auto_now_add=True)
+    author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='clothes')
+
+    class Meta:
+        ordering = ['name']
+
+    def __str__(self):
+        return self.name
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(unidecode(self.name))
+        return super().save(*args, **kwargs)
+
+
+class ClothesLink(models.Model):
+    link = models.URLField()
+    clothes = models.ForeignKey(Clothes, on_delete=models.CASCADE, related_name='links')
+
+
 class LookImages(models.Model):
     look = models.ForeignKey(Look, on_delete=models.CASCADE, related_name='images')
     image = models.ImageField(verbose_name='images')
+
+    def image_tag(self):
+        if self.image.url is not None:
+            return mark_safe('<img src="{}" height="50"/>'.format(self.image.url))
+        else:
+            return ""
 
 
 class Comment(models.Model):

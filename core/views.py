@@ -61,9 +61,6 @@ class MyLooksViewSet(ModelViewSet):
     permission_classes = [IsAuthenticated, IsAuthorOrReadOnly]
     lookup_field = 'slug'
 
-    def perform_create(self, serializer):
-        return serializer.save(author=self.request.user)
-
     def get_queryset(self):
         return Look.objects.filter(author=self.request.user)
 
@@ -124,11 +121,20 @@ class MyClothesViewSet(ModelViewSet):
     permission_classes = [IsAuthenticated, IsAuthorOrReadOnly]
     lookup_field = 'slug'
 
-    def perform_create(self, serializer):
-        return serializer.save(author=self.request.user)
-
     def get_queryset(self):
         return Clothes.objects.filter(author=self.request.user)
+
+    def perform_create(self, serializer):
+        try:
+            return serializer.save(category=self.request.data['category'])
+        except KeyError:
+            return serializer.save()
+
+    def perform_update(self, serializer):
+        try:
+            return serializer.save(category=self.request.data['category'])
+        except KeyError:
+            return serializer.save()
 
 
 @extend_schema_view(
@@ -189,7 +195,7 @@ class LikeCreateAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request, **kwargs):
-        look = get_object_or_404(Look, slug=request.data.get('slug'))
+        look = get_object_or_404(Look, slug=request.data.get('look'))
         if request.user not in look.likes.all():
             request.user.likes.add(look)
             return Response({'detail': 'Successfully liked'}, status=status.HTTP_200_OK)

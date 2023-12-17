@@ -16,10 +16,10 @@ class ReadOnlyClothesViewSetTest(TestCase):
     def setUpTestData(cls):
         user = User.objects.create(email="test_user@gmail.com", username="TestUser",
                                    password="TestUserPassword")
-        cls.test1 = Clothes.objects.create(name='test clothes 1', description='test 1',
-                                           gender='ml', slug='test-clothes-1', author=user)
-        cls.test2 = Clothes.objects.create(name='test clothes 2', description='test 2',
-                                           gender='ml', slug='test-clothes-2', author=user)
+        cls.test1 = Clothes.objects.create(name='test clothes 1', gender='ml',
+                                           slug='test-clothes-1', author=user)
+        cls.test2 = Clothes.objects.create(name='test clothes 2', gender='ml',
+                                           slug='test-clothes-2', author=user)
 
     def test_user_can_get_clothes_list(self):
         response = client.get(reverse('clothes-list'))

@@ -46,7 +46,7 @@ class LookImagesRetrieveDestroyAPIViewTest(TestCase):
         response = self.client.delete(path=reverse('image-detail',
                                                  kwargs={'look_slug': slug, 'pk': self.image.pk}))
         look = Look.objects.get(slug=slug)
-        deleted_image = LookImages.objects.filter(look=look) or False
+        deleted_image = LookImages.objects.filter(look=look)
         self.assertEquals(response.status_code, status.HTTP_204_NO_CONTENT)
         self.assertFalse(deleted_image, msg='look is not deleted')
 

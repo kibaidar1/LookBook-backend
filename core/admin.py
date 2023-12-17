@@ -1,26 +1,7 @@
 from django.contrib import admin
+from django.forms import modelformset_factory
 
-from core.models import User, Look, Comment, Clothes, ClothesLink, LookImages
-
-
-class LookInline(admin.TabularInline):
-    model = Look.clothes.through
-
-
-class LookImagesInline(admin.StackedInline):
-    model = LookImages
-
-
-class ClothesInline(admin.TabularInline):
-    model = Clothes.looks.through
-
-
-class ClothesLinkInline(admin.TabularInline):
-    model = ClothesLink
-
-
-# class ClothesImagesInline(admin.StackedInline):
-#     model = ClothesImages
+from core.models import User, Look, Comment, Clothes, ClothesLink, LookImages, ClothesCategory
 
 
 @admin.register(User)
@@ -39,11 +20,32 @@ class UserAdmin(admin.ModelAdmin):
     filter_horizontal = ('user_permissions',)
 
 
+class ClothesInline(admin.StackedInline):
+    model = Clothes.category.through
+
+
+@admin.register(ClothesCategory)
+class ClothesCategoryAdmin(admin.ModelAdmin):
+    fields = ('name', 'look')
+    list_filter = ('name',)
+    search_fields = ('name',)
+
+    inlines = [ClothesInline]
+
+
+class ClothesLinkInline(admin.TabularInline):
+    model = ClothesLink
+
+
+class ClothesCategoryInline(admin.StackedInline):
+    model = ClothesCategory.clothes.through
+
+
 @admin.register(Clothes)
 class ClothesAdmin(admin.ModelAdmin):
     fieldsets = (
         (None, {'fields': ('name', 'slug')}),
-        ('Content', {'fields': ('colour', 'gender', 'description')}),
+        ('Content', {'fields': ('colour', 'gender')}),
         ('Context', {'fields': ('author',)}),
     )
     list_display = ('name', 'slug', 'created_at', 'author', 'colour', 'gender')
@@ -52,16 +54,28 @@ class ClothesAdmin(admin.ModelAdmin):
     prepopulated_fields = {'slug': ('name',)}
 
     inlines = [
-        # ClothesImagesInline,
-        ClothesLinkInline,
-        LookInline,
+        ClothesCategoryInline,
+        ClothesLinkInline
     ]
+
+
+class LookImagesInline(admin.TabularInline):
+    model = LookImages
+    readonly_fields = ('id', 'image_tag',)
+
+
+class ClothesCategoryInLookInline(admin.TabularInline):
+    model = ClothesCategory
+    fields = ('name',)
+    raw_id_fields = ('look',)
+    show_change_link = True
+    show_full_result_count = True
 
 
 @admin.register(Look)
 class LookAdmin(admin.ModelAdmin):
     fieldsets = (None, {'fields': ('name', 'slug')}), \
-        ('Content', {'fields': ('description', 'gender')}), \
+        ('Content', {'fields': ('description', 'gender',)}), \
         ('Context', {'fields': ('author',)}),
     list_display = ('name', 'slug', 'gender', 'author', 'created_at',)
     list_filter = ('name', 'gender', 'author', 'created_at')
@@ -70,7 +84,7 @@ class LookAdmin(admin.ModelAdmin):
 
     inlines = [
         LookImagesInline,
-        ClothesInline,
+        ClothesCategoryInLookInline
     ]
 
 
