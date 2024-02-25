@@ -30,7 +30,7 @@ BROWN = 'br'
 BLACK = 'bk'
 
 COLOUR_CHOICES = [(WHITE, 'white'), (GRAY, 'gray'), (RED, 'red'), (PINK, 'pink'), (ORANGE, 'orange'), (YELLOW, 'yellow'),
-                  (LIGHT_GREEN, 'light_green'), (GREEN, 'green'), (LIGHT_BLUE, 'light_blue'), (PURPLE, 'purple'),
+                  (LIGHT_GREEN, 'light_green'), (GREEN, 'green'), (BLUE, 'blue'), (LIGHT_BLUE, 'light_blue'), (PURPLE, 'purple'),
                   (BROWN, 'brown'), (BLACK, 'black')]
 
 
@@ -145,7 +145,7 @@ class Look(models.Model):
 
 class ClothesCategory(models.Model):
     name = models.CharField(max_length=200)
-    look = models.ForeignKey(Look, on_delete=models.CASCADE, related_name='clothes_category', null=True)
+    look = models.ForeignKey(Look, on_delete=models.CASCADE, related_name='clothes_category')
 
     def __str__(self):
         return f'{self.look.name}: {self.name}'
