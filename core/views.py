@@ -8,6 +8,7 @@ from rest_framework.viewsets import ReadOnlyModelViewSet, ModelViewSet
 from rest_framework import status, filters
 
 from core.models import Look, Clothes, LookImages, Comment, User
+from core.paginations import APIListPagination
 from core.permissions import IsAuthorOrReadOnly, LookIsAuthorOrReadOnly
 from core.serializers import LookSerializer, ClothesSerializer, LookImagesSerializer, \
     CommentSerializer, RegistrationUserSerializer
@@ -25,6 +26,7 @@ class ReadOnlyLooksViewSet(ReadOnlyModelViewSet):
     queryset = Look.objects.all()
     serializer_class = LookSerializer
     lookup_field = 'slug'
+    pagination_class = APIListPagination
 
 
 @extend_schema(tags=['Clothes'])
@@ -39,6 +41,7 @@ class ReadOnlyClothesViewSet(ReadOnlyModelViewSet):
     queryset = Clothes.objects.all()
     serializer_class = ClothesSerializer
     lookup_field = 'slug'
+    pagination_class = APIListPagination
 
 
 @extend_schema(tags=['Looks'])
@@ -60,6 +63,7 @@ class MyLooksViewSet(ModelViewSet):
     serializer_class = LookSerializer
     permission_classes = [IsAuthenticated, IsAuthorOrReadOnly]
     lookup_field = 'slug'
+    pagination_class = APIListPagination
 
     def get_queryset(self):
         return Look.objects.filter(author=self.request.user)
