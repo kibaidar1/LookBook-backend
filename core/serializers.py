@@ -34,11 +34,13 @@ class ClothesSerializer(WritableNestedModelSerializer):
 
 
 class ClothesCategorySerializer(WritableNestedModelSerializer):
-    clothes = ClothesSerializer(many=True, required=False)
+    clothes = ClothesSerializer(many=True, required=False, read_only=True)
+    clothes_id = serializers.PrimaryKeyRelatedField(queryset=Clothes.objects.all(), source='clothes',
+                                                    many=True, required=True, write_only=True)
 
     class Meta:
         model = ClothesCategory
-        fields = ['id', 'name', 'clothes']
+        fields = ['id', 'name', 'clothes', 'clothes_id']
 
 
 class LookImagesSerializer(serializers.ModelSerializer):
